@@ -31,10 +31,10 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
 
-        const collection = client.db("modernTable").collection("");
+        const bikesCollection = client.db("bikeSeller").collection("bikes");
    
-        app.get("/", async(req, res)=>{
-            const result = await collection.find().toArray()
+        app.get("/bikes", async(req, res)=>{
+            const result = await bikesCollection.find().toArray()
             res.send(result) 
         })
 
