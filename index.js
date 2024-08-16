@@ -32,10 +32,41 @@ async function run() {
     try {
 
         const bikesCollection = client.db("bikeSeller").collection("bikes");
-   
-        app.get("/bikes", async(req, res)=>{
+
+        app.get("/bikes", async (req, res) => {
             const result = await bikesCollection.find().toArray()
-            res.send(result) 
+            res.send(result)
+        })
+
+        app.get("/bikes/filtered", async (req, res) => {
+            const { search, minPrice, maxPrice, brands, categories, sortValue } = req.query;
+            const query = {};
+
+            if (search) {
+                query.name = { $regex: search, $options: 'i' };
+            }
+            if (minPrice) {
+                query.price = { ...query.price, $gte: parseFloat(minPrice) };
+            }
+            if (maxPrice) {
+                query.price = { ...query.price, $lte: parseFloat(maxPrice) };
+            }
+            if (brands) {
+                query.brand = { $in: brands };
+            }
+            if (categories) {
+                query.category = { $in: categories };
+            }
+
+            let sortQuery = {};
+            if (sortValue === 'Low to High') {
+                sortQuery.price = 1;
+            } else if (sortValue === 'High to Low') {
+                sortQuery.price = -1;
+            }
+        
+            const result = await bikesCollection.find(query).sort(sortQuery).toArray();
+            res.send(result);
         })
 
     } finally {
